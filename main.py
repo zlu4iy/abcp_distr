@@ -17,21 +17,39 @@ def get_data(url):
     with open(file='index.html', encoding='utf-8') as file:
         src = file.read()
         soup = BeautifulSoup(src, 'lxml')
-        table = soup.find("div", {"class": "fr-table-responsive"})
-        data_tr = table.find('tbody').find_all('tr')
-        table_data = ['Таблица']
-        for dth in data_tr:
-            dth = dth.text.strip()
-            # print(dth)
-            table_data.append(dth)
+        table = soup.find('tbody', class_='fr-table-tbody').find_all('tr')  # можно и так table = soup.find("div", {"class": "fr-table-responsive"})
+        lst = []
+        for tr in table[0:1]:
+            name = tr.find_next('td', class_='supplierCell').text.strip()
+            site = tr.find_next('span').text.strip()
+            link = tr.find_next('a')
+            url = link.get('href')
+            city = get_city()
+            lst.append(name)
+            lst.append(site)
+            # lst.append(url)
+            lst.append(city)
+        print(lst)
+
         with open(file='data.csv', mode='w') as file:
             writer = csv.writer(file)
 
             writer.writerow(
                 (
-                    table_data
+                    lst
                 )
             )
+
+def get_city() -> str:
+    # response = requests.get(url=url, headers=headers)
+    #
+    # with open(file='city.html', mode='w', encoding='utf-8') as file:
+    #     file.write(response.text)
+    with open(file='suplier.html', encoding='utf-8') as file:
+        src = file.read()
+        soup = BeautifulSoup(src, 'lxml')
+        city = soup.find_all('div', 'fr-form-group')[1].text
+        return city
 
 
 def main():
